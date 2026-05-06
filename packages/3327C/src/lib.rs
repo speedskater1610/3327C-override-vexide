@@ -1,11 +1,11 @@
 //! # 3327C/src/lib.rs
 //! 
-//! Lib for our controls
+//! Lib for our controls (Hardware/motion/ based controls)
 //!
 //! ## Usage
+//!
 
 pub mod theme;
-pub mod subsystems;
 pub mod logger;
 pub mod hardware;
 pub mod motion;
