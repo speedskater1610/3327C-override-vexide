@@ -58,9 +58,10 @@ impl Compete for Bot {
 
         info!("Route completed successfully in {:?}.", start.elapsed());
         info!(
-            "Position: {} Heading: {}°",
+            "Position: {} Heading: {}{}",
             self.drivetrain.tracking.position(),
             self.drivetrain.tracking.heading().as_degrees(),
+            "\u{00B0}",
         );
     }
 
@@ -75,7 +76,6 @@ impl Compete for Bot {
 
             // controller
             // state.button_r1.is_pressed()
-
 
             sleep(Motor::WRITE_INTERVAL).await;
         }
@@ -99,6 +99,7 @@ async fn main(peripherals: Peripherals) {
         Motor::new(peripherals.port_3, Gearset::Blue, Direction::Reverse),
         Motor::new(peripherals.port_4, Gearset::Blue, Direction::Forward),
     ];
+
     let right_motors = shared_motors![
         Motor::new(peripherals.port_5, Gearset::Blue, Direction::Forward),
         Motor::new(peripherals.port_6, Gearset::Blue, Direction::Reverse),
@@ -106,7 +107,7 @@ async fn main(peripherals: Peripherals) {
         Motor::new(peripherals.port_8, Gearset::Blue, Direction::Reverse),
     ];
 
-    let robot = Bot {
+    let bot = Bot {
         controller,
         drivetrain: Drivetrain::new(
             Differential::from_shared(left_motors.clone(), right_motors.clone()),
@@ -120,18 +121,7 @@ async fn main(peripherals: Peripherals) {
                 Some(imu),
             ),
         ),
-        intake_bottom: Motor::new(peripherals.port_9, Gearset::Blue, Direction::Reverse),
-        intake_conveyor: Motor::new(peripherals.port_20, Gearset::Blue, Direction::Forward),
-        intake_hood: Motor::new(peripherals.port_10, Gearset::Blue, Direction::Forward),
-        intake_score: Motor::new(peripherals.port_11, Gearset::Blue, Direction::Reverse),
-        hood: AdiDigitalOut::new(peripherals.adi_a),
-        snacky: AdiDigitalOut::new(peripherals.adi_b),
-        trapdoor: AdiDigitalOut::new(peripherals.adi_d),
-        matchloader: AdiDigitalOut::new(peripherals.adi_g),
-        aligner: AdiDigitalOut::new(peripherals.adi_e),
     };
 
-    // skills : c
-
-    robot.compete().await;
+    bot.compete().await;
 }
