@@ -25,7 +25,7 @@ struct Bot {
 impl Bot {
     // Robot measurements
     pub const TRACK_WIDTH: f64 = 11.5;
-    pub const WHEEL_DIAMETER: f64 = 2.75;
+    pub const WHEEL_DIAMETER: f64 = 3.25;
 
     // Robot measurements
     pub const TRACKING_WHEEL_DIAMETER: f64 = 2.0;
