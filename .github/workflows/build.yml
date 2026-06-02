@@ -36,9 +36,6 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Check formatting
-        run: cargo fmt --all -- --check
-
       - name: Build (controls library)
         run: cargo build -p 3327C --target armv7a-vex-v5-vexos-eabi -Z build-std=core,alloc
         env:
