@@ -1,0 +1,5 @@
+[build]
+target = "armv7a-vex-v5-vexos-eabi"
+
+[target.armv7a-vex-v5-vexos-eabi]
+linker = "arm-none-eabi-ld"
