@@ -159,17 +159,6 @@ let presets = LiftPresets::new()
     .add("score_high", 28.5);
 ```
 
-##### Geometry reference tables
-
-**VEX sprocket pitch radii** (for `CascadeLift` / `ContinuousChainLift`):
-
-| Teeth | Radius (in) |
-|---|---|
-| 12t | 0.659 |
-| 16t | 0.875 |
-| 20t | 1.096 |
-| 24t | 1.312 |
-
 **Adding a new lift type:** implement a geometry struct with `degrees_to_inches`
 and `inches_to_degrees` in `geometry.rs`, add a `src/subsystems/lift/my_lift.rs`
 using the `impl_lift!` macro, then export it from `mod.rs`.
