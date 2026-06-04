@@ -1,0 +1,20 @@
+[package]
+name = "robot"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "robot"
+path = "src/main.rs"
+
+[dependencies]
+rambots = { path = "../rambots" }
+vexide = { workspace = true }
+evian = { workspace = true }
+log = { workspace = true }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"

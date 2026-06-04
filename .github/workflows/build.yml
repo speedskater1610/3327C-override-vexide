@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build & Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ARM cross-compiler toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi
+
+      - name: Install Rust nightly + vex target
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          components: rust-src, clippy, rustfmt
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Build (rambots controls library)
+        run: cargo build -p rambots --target armv7a-vex-v5-vexos-eabi -Z build-std=core,alloc
+        env:
+          RUSTFLAGS: "-C link-arg=-nostartfiles"
+
+      - name: Build (robot binary)
+        run: cargo build -p robot --target armv7a-vex-v5-vexos-eabi -Z build-std=core,alloc
+        env:
+          RUSTFLAGS: "-C link-arg=-nostartfiles"
+
+      - name: Clippy (rambots library)
+        run: cargo clippy -p rambots --target armv7a-vex-v5-vexos-eabi -Z build-std=core,alloc -- -D warnings
+        env:
+          RUSTFLAGS: "-C link-arg=-nostartfiles"

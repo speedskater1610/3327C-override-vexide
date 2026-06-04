@@ -1,0 +1,11 @@
+[workspace]
+resolver = "2"
+members = [
+    "packages/rambots",
+    "packages/robot",
+]
+
+[workspace.dependencies]
+vexide = { version = "0.4", features = ["dangerous-platform-intrinsics"] }
+evian = { git = "https://github.com/vexide/evian", branch = "main" }
+log = "0.4"
