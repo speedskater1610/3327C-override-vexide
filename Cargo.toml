@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "packages/3327C",
+    "packages/rambots",
     "packages/robot",
 ]
 
