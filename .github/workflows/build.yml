@@ -36,8 +36,11 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Build (controls library)
-        run: cargo build -p 3327C --target armv7a-vex-v5-vexos-eabi -Z build-std=core,alloc
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Build (rambots controls library)
+        run: cargo build -p rambots --target armv7a-vex-v5-vexos-eabi -Z build-std=core,alloc
         env:
           RUSTFLAGS: "-C link-arg=-nostartfiles"
 
@@ -46,7 +49,7 @@ jobs:
         env:
           RUSTFLAGS: "-C link-arg=-nostartfiles"
 
-      - name: Clippy (3327C library)
-        run: cargo clippy -p 3327C --target armv7a-vex-v5-vexos-eabi -Z build-std=core,alloc -- -D warnings
+      - name: Clippy (rambots library)
+        run: cargo clippy -p rambots --target armv7a-vex-v5-vexos-eabi -Z build-std=core,alloc -- -D warnings
         env:
           RUSTFLAGS: "-C link-arg=-nostartfiles"
