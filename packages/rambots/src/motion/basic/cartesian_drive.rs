@@ -5,7 +5,7 @@
 
 use vexide::devices::smart::motor::Motor;
 
-/// Maximum voltage sent to motors (mV).  VEX V5 motors accept -12000 to 12000.
+/// Maximum voltage sent to motors (mV). VEX V5 motors accept -12000 to 12000.
 const MAX_VOLTAGE: f64 = 12000.0;
 
 /// Tank drive: left stick controls left motors, right stick controls right motors.

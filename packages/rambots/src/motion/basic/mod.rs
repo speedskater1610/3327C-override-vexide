@@ -1,4 +1,4 @@
-//! Open-loop drive helpers.
+//! Open loop drive helpers.
 
 pub mod cartesian_drive;
 
