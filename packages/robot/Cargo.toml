@@ -1,21 +1,20 @@
 [package]
 name = "robot"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
-[package.metadata.v5]
-upload-strategy = "differential"
-slot = 1
-icon = "cool-x"
+[[bin]]
+name = "robot"
+path = "src/main.rs"
 
 [dependencies]
-aubie2 = { workspace = true }
-vexide = { workspace = true, features = ["full", "default-sdk"] }
+rambots = { path = "../rambots" }
+vexide = { workspace = true }
 evian = { workspace = true }
 log = { workspace = true }
-futures = { version = "0.3.31", default-features = false, features = ["async-await"] }
 
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = [
-    'cfg(route, values("blue", "red"))',
-] }
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
