@@ -1,155 +1,18 @@
-use std::time::Duration;
+//! Autonomous routes.
+//!
+//! Add new routes as sub-modules and register them in [`run_autonomous`].
 
-use 3327C::{
-    motion::basic::BasicExt,
-    subsystems::intake::{ElementColor, HoodPosition, IntakeStage},
-};
-use evian::{
-    motion::{Basic, Seeking},
-    prelude::*,
-};
-use futures::future::join;
-use vexide::time::sleep;
+pub mod skills;
+pub mod left_qual;
+pub mod right_qual;
 
 use crate::Robot;
 
-pub mod aura;
-pub mod skills;
-
-impl Bot {
-    pub async fn safe(&mut self) {
-        let dt = &mut self.drivetrain;
-        let mut basic = Basic {
-            linear_controller: Bot::LINEAR_PID,
-            angular_controller: Bot::ANGUALR_PID,
-            linear_tolerances: Bot::LINEAR_TOLERANCES,
-            angular_tolerances: Bot::ANGULAR_TOLERANCES,
-            timeout: Some(Duration::from_secs(5)),
-        };
-
-        let mut seeking = Seeking {
-            linear_controller: Bot::LINEAR_PID,
-            lateral_controller: Bot::LATERAL_PID,
-            tolerances: Tolerances::new()
-                .error(1.0)
-                .duration(Duration::from_millis(100)),
-            timeout: Some(Duration::from_secs(3)),
-        };
-
-        dt.tracking.set_heading(270.0.deg());
-
-        // drive to goal
-        basic
-            .drive_distance_at_heading(dt, -34.0, 270.0.deg())
-            .await;
-        basic.turn_to_heading(dt, 225.0.deg()).await;
-
-        basic
-            .drive_distance_at_heading(dt, -12.0, 225.0.deg())
-            .with_timeout(Duration::from_millis(1000))
-            .await;
-        _ = self.hood.set_high(); // deploy
-        sleep(Duration::from_millis(50)).await;
-        _ = self.snacky.set_high();
-        _ = self.intake_score.set_voltage(-6.0);
-        sleep(Duration::from_millis(350)).await;
-
-        // drive back
-        println!("{}", dt.tracking.position());
-        basic.drive_distance_at_heading(dt, 55.0, 225.0.deg()).await;
-        basic.turn_to_heading(dt, 270.0.deg()).await;
-
-        // Reset
-        basic
-            .drive_distance_at_heading(dt, -100.0, 270.0.deg())
-            .with_linear_output_limit(0.5)
-            .with_timeout(Duration::from_millis(1000))
-            .await;
-        sleep(Duration::from_millis(500)).await; // ensure we're fully settled
-        dt.tracking.set_position((0.0, 0.0));
-
-        // Matchloader
-        _ = self.matchloader.set_high();
-        _ = self.intake_bottom.set_voltage(12.0);
-        _ = self.intake_conveyor.set_voltage(12.0);
-        _ = self.intake_score.set_voltage(0.0);
-        _ = self.intake_hood.set_voltage(-2.0);
-        basic
-            .drive_distance_at_heading(dt, 100.0, 270.0.deg())
-            .with_timeout(Duration::from_millis(1650))
-            .with_linear_output_limit(0.35)
-            .await;
-
-        // Score
-        basic
-            .drive_distance_at_heading(dt, -100.0, 270.0.deg())
-            .with_linear_output_limit(0.5)
-            .with_timeout(Duration::from_millis(1500))
-            .await;
-        _ = self.intake_score.set_voltage(12.0);
-        _ = self.intake_hood.set_voltage(12.0);
-        dt.tracking.set_position((0.0, 0.0)); // odom reset
-        sleep(Duration::from_secs(2)).await;
-
-        // Matchloader
-        join(
-            async {
-                basic
-                    .drive_distance_at_heading(dt, 100.0, 270.0.deg())
-                    .with_timeout(Duration::from_millis(6000))
-                    .with_linear_output_limit(0.3)
-                    .await;
-            },
-            async {
-                sleep(Duration::from_millis(3800)).await;
-                _ = self.intake_score.set_voltage(0.0);
-                _ = self.intake_hood.set_voltage(-2.0);
-            },
-        )
-        .await;
-
-        // Score again
-        basic
-            .drive_distance_at_heading(dt, -100.0, 270.0.deg())
-            .with_linear_output_limit(0.5)
-            .with_timeout(Duration::from_millis(2000))
-            .await;
-        _ = self.intake_score.set_voltage(12.0);
-        _ = self.intake_hood.set_voltage(12.0);
-        dt.tracking.set_position((0.0, 0.0)); // odom reset
-        sleep(Duration::from_secs(2)).await;
-
-        //
-        _ = self.matchloader.set_low();
-        _ = self.snacky.set_low();
-        _ = self.intake_bottom.set_voltage(0.0);
-        _ = self.intake_conveyor.set_voltage(0.0);
-        _ = self.intake_score.set_voltage(0.0);
-        _ = self.intake_hood.set_voltage(0.0);
-        basic
-            .drive_distance_at_heading(dt, 12.0, 270.0.deg())
-            .without_linear_tolerance_duration()
-            .without_angular_tolerance_duration()
-            .await;
-        basic.turn_to_heading(dt, 0.0.deg()).await;
-        basic
-            .drive_distance_at_heading(dt, 13.0, 0.0.deg())
-            .without_linear_tolerance_duration()
-            .without_angular_tolerance_duration()
-            .await;
-        basic.turn_to_heading(dt, 90.0.deg()).await;
-        basic
-            .drive_distance_at_heading(dt, 28.0, 90.0.deg())
-            .without_linear_tolerance_duration()
-            .without_angular_tolerance_duration()
-            .await;
-        sleep(Duration::from_millis(500)).await;
-        _ = self.snacky.set_high();
-
-        basic
-            .drive_distance_at_heading(dt, -48.0, 90.0.deg())
-            .await;
-        basic.turn_to_heading(dt, -28.0.deg()).await;
-        basic.drive_distance_at_heading(dt, 44.0, 0.0.deg()).await;
-    }
+/// Select and execute the autonomous route for the current match.
+///
+/// Route selection can be controlled via the controller screen or a
+/// physical selector switch — for now it defaults to the left qualifier route.
+pub async fn run_autonomous(robot: &mut Robot) {
+    // TODO: wire up a selector (controller buttons / display menu)
+    left_qual::run(robot).await;
 }
