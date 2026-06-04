@@ -1,11 +1,19 @@
 [package]
-name = "3327C"
-version = "0.0.0"
-edition = "2026"
+name = "rambots"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "rambots"
+path = "src/lib.rs"
 
 [dependencies]
 vexide = { workspace = true }
 evian = { workspace = true }
 log = { workspace = true }
-bitflags = "2.10.0"
-vex-sdk = "0.28.0"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
